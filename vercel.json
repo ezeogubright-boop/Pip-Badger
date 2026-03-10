@@ -3,5 +3,5 @@
   "outputDirectory": "app/dist",
   "framework": "vite",
   "devCommand": "cd app && npm run dev",
-  "installCommand": "npm install && cd app && npm install"
+  "installCommand": "cd app && npm install"
 }
