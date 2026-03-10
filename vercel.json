@@ -4,6 +4,7 @@
   "framework": "vite",
   "devCommand": "cd app && npm run dev",
   "installCommand": "cd app && npm install",
+  "nodeVersion": "18.x",
   "functions": {
     "api/**.ts": {
       "runtime": "@vercel/node@3.0.0"
