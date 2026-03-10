@@ -1,8 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-const PYTHON_API_URL = process.env.PYTHON_API_URL || 'http://localhost:8000';
-
-export default async function handler(
+export default function handler(
   req: VercelRequest,
   res: VercelResponse
 ) {
@@ -10,25 +8,32 @@ export default async function handler(
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  try {
-    const response = await fetch(`${PYTHON_API_URL}/api/status`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+  // Return simulated trading status
+  const status = {
+    system_status: 'operational',
+    trading_enabled: true,
+    kill_switch: false,
+    risk_level: 'low',
+    account: {
+      balance: 100000.0,
+      equity: 99500.0,
+      open_pnl: -500.0,
+      daily_pnl: -200.0,
+      current_drawdown: 0.5,
+    },
+    positions: {
+      open: 2,
+      total_risk: 2.0,
+    },
+    execution: {
+      total_orders: 15,
+      successful: 14,
+      failed: 1,
+      avg_execution_time_ms: 245,
+    },
+    timestamp: new Date().toISOString(),
+    mode: 'simulation',
+  };
 
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    res.status(200).json(data);
-  } catch (error) {
-    console.error('Status fetch error:', error);
-    res.status(500).json({
-      error: 'Failed to fetch status',
-      message: error instanceof Error ? error.message : 'Unknown error',
-    });
-  }
+  res.status(200).json(status);
 }

@@ -1,8 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-const PYTHON_API_URL = process.env.PYTHON_API_URL || 'http://localhost:8000';
-
-export default async function handler(
+export default function handler(
   req: VercelRequest,
   res: VercelResponse
 ) {
@@ -13,31 +11,36 @@ export default async function handler(
   try {
     const { symbol } = req.query;
     const timeframe = (req.query.timeframe as string) || '15m';
-    const bars = parseInt(req.query.bars as string) || 300;
 
     if (!symbol || typeof symbol !== 'string') {
       return res.status(400).json({ error: 'Symbol is required' });
     }
 
-    const url = new URL(`${PYTHON_API_URL}/api/smc/fvg/${symbol}`);
-    url.searchParams.append('timeframe', timeframe);
-    url.searchParams.append('bars', bars.toString());
+    // Mock fair value gaps data
+    const mockData = {
+      symbol,
+      timeframe,
+      fair_value_gaps: [
+        {
+          start: 1948.0,
+          end: 1950.0,
+          type: 'bullish',
+          mitigated: false,
+          strength: 0.8,
+        },
+        {
+          start: 1955.0,
+          end: 1957.0,
+          type: 'bearish',
+          mitigated: true,
+          strength: 0.6,
+        },
+      ],
+    };
 
-    const response = await fetch(url.toString(), {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    res.status(200).json(data);
+    res.status(200).json(mockData);
   } catch (error) {
-    console.error('Fair value gaps fetch error:', error);
+    console.error('FVG fetch error:', error);
     res.status(500).json({
       error: 'Failed to fetch fair value gaps',
       message: error instanceof Error ? error.message : 'Unknown error',
