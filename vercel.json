@@ -3,10 +3,5 @@
   "outputDirectory": "app/dist",
   "framework": "vite",
   "devCommand": "cd app && npm run dev",
-  "installCommand": "cd app && npm install",
-  "functions": {
-    "api/**.ts": {
-      "runtime": "@vercel/node@2.11.1"
-    }
-  }
+  "installCommand": "cd app && npm install"
 }
