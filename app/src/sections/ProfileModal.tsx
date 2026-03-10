@@ -96,7 +96,8 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
         toast.error(data.error || 'Failed to connect to MT5');
       }
     } catch (err: any) {
-      toast.error(err?.response?.data?.detail || 'Connection failed');
+      const errorMsg = err?.response?.data?.error || err?.response?.data?.detail || err?.message || 'Connection failed';
+      toast.error(errorMsg);
     } finally {
       setConnecting(false);
     }

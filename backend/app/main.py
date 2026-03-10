@@ -952,6 +952,7 @@ class MT5ConnectRequest(BaseModel):
 async def mt5_connect(request: MT5ConnectRequest):
     """Connect to MT5 with user credentials"""
     mt5_svc = get_mt5_service()
+    logger.info(f"MT5 connect attempt: login={request.login}, server={request.server}")
     try:
         import MetaTrader5 as mt5
         # Shutdown any existing connection
@@ -963,14 +964,17 @@ async def mt5_connect(request: MT5ConnectRequest):
             server=request.server,
         ):
             error = mt5.last_error()
-            logger.error(f"MT5 initialize failed: {error}")
+            error_msg = f"MT5 terminal not responding. Make sure MetaTrader5 is open and running. Error: {error}"
+            logger.error(error_msg)
             return {
                 "connected": False,
-                "error": f"MT5 terminal not responding. Make sure MetaTrader5 is open and running. Error: {error}",
+                "error": error_msg,
             }
         info = mt5.account_info()
         if info is None:
+            logger.error("MT5 account_info returned None")
             return {"connected": False, "error": "Could not retrieve account info"}
+        logger.info(f"MT5 connected successfully: {info.name} on {info.server}")
         mt5_svc.connected = True
         mt5_svc.mt5 = mt5
         # Repopulate timeframe constants
@@ -997,11 +1001,13 @@ async def mt5_connect(request: MT5ConnectRequest):
             },
         }
     except ImportError as e:
-        logger.error(f"MetaTrader5 package import failed: {e}")
-        return {"connected": False, "error": "MetaTrader5 package not installed"}
+        error_msg = f"MetaTrader5 package import failed: {e}"
+        logger.error(error_msg)
+        return {"connected": False, "error": error_msg}
     except Exception as e:
-        logger.error(f"MT5 connection error: {e}")
-        return {"connected": False, "error": f"MT5 connection failed: {str(e)}"}
+        error_msg = f"MT5 connection failed: {str(e)}"
+        logger.error(error_msg, exc_info=True)
+        return {"connected": False, "error": error_msg}
 
 
 @app.post("/api/mt5/disconnect")
