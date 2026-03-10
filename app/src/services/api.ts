@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// Use relative paths for Vercel API routes, or PYTHON_API_URL for external backend
-const API_BASE_URL = import.meta.env.VITE_API_URL || window.location.origin;
+// Local backend
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 const api = axios.create({
   baseURL: API_BASE_URL,

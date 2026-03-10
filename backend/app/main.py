@@ -963,9 +963,10 @@ async def mt5_connect(request: MT5ConnectRequest):
             server=request.server,
         ):
             error = mt5.last_error()
+            logger.error(f"MT5 initialize failed: {error}")
             return {
                 "connected": False,
-                "error": f"MT5 initialize failed: {error}",
+                "error": f"MT5 terminal not responding. Make sure MetaTrader5 is open and running. Error: {error}",
             }
         info = mt5.account_info()
         if info is None:
@@ -995,10 +996,12 @@ async def mt5_connect(request: MT5ConnectRequest):
                 "trade_mode": "demo" if info.trade_mode == 0 else "live",
             },
         }
-    except ImportError:
+    except ImportError as e:
+        logger.error(f"MetaTrader5 package import failed: {e}")
         return {"connected": False, "error": "MetaTrader5 package not installed"}
     except Exception as e:
-        return {"connected": False, "error": str(e)}
+        logger.error(f"MT5 connection error: {e}")
+        return {"connected": False, "error": f"MT5 connection failed: {str(e)}"}
 
 
 @app.post("/api/mt5/disconnect")
