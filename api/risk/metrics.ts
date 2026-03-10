@@ -32,5 +32,5 @@ export default function handler(
     },
   };
 
-  res.status(200).json({ data: metrics });
+  res.status(200).json(metrics);
 }

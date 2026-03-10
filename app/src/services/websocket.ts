@@ -1,17 +1,18 @@
 import { useTradingStore } from '@/store/tradingStore';
 
-const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/ws';
+const WS_URL = import.meta.env.VITE_WS_URL || '';
 
 class WebSocketService {
   private ws: WebSocket | null = null;
   private reconnectAttempts = 0;
-  private maxReconnectAttempts = 5;
+  private maxReconnectAttempts = 1;
   private reconnectDelay = 3000;
   private pingInterval: ReturnType<typeof setInterval> | null = null;
   private messageHandlers: Map<string, ((data: any) => void)[]> = new Map();
 
   connect() {
     if (this.ws?.readyState === WebSocket.OPEN) return;
+    if (!WS_URL) return; // No WebSocket URL configured — skip in production
 
     try {
       this.ws = new WebSocket(WS_URL);
